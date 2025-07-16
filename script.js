@@ -340,7 +340,7 @@ function winGame() {
             <h2>🎉 Congratulations! 🎉</h2>
             <p>You guessed the word: <strong>${SECRET_WORD}</strong></p>
             <p>You are Inception ready, Register Now!</p>
-            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1" target="_blank">Register Here!</a>
+            <a href="https://docs.google.com/forms/d/1tjR_-yd4GMu6g89g-fihDkqO4DDnWVJxU1vh2EQ8K-Q/edit?usp=drivesdk">Register Here!</a>
         `);
     }, 1200); // Delay after last box flip completes
 }
