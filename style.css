@@ -1,0 +1,297 @@
+/* ABSOLUTELY HIDE ANY INPUT FIELDS - AGGRESSIVE STRATEGY FOR MOBILE KEYBOARD OVERRIDE */
+/* This MUST be at the very top of your style.css to ensure highest priority */
+input[type="text"],
+input[type="number"],
+textarea,
+div[contenteditable="true"] {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    clip: rect(0 0 0 0) !important;
+    overflow: hidden !important;
+    pointer-events: none !important; /* Prevents interaction */
+    -webkit-user-select: none !important; /* For iOS */
+    -ms-user-select: none !important;    /* For Edge/IE */
+    user-select: none !important;        /* Standard */
+    -webkit-touch-callout: none !important; /* Disable callout for touch */
+    -webkit-appearance: none !important; /* Remove default browser styling for form elements */
+    appearance: none !important;
+}
+
+
+/* --- General Body & Container Styling for Full Page View --- */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    display: flex;
+    justify-content: center; /* Center game container horizontally */
+    align-items: flex-start; /* Align content to the top of the screen */
+    height: 100vh; /* Make body fill 100% of viewport height */
+    overflow: hidden; /* Crucial: Prevents any scrolling */
+    background-color: #121213;
+    color: #ffffff;
+    margin: 0;
+    padding: 0; /* No padding on body itself */
+    box-sizing: border-box;
+}
+
+.game-container {
+    text-align: center;
+    padding: 15px 10px 10px; /* Reduced top padding, some side padding for aesthetics */
+    max-width: 400px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%; /* Make game-container fill its parent's height */
+    justify-content: space-between; /* Pushes the keyboard to the bottom */
+    box-sizing: border-box; /* Include padding in height calculation */
+}
+
+.game-title {
+    color: #6d6d6e;
+    font-size: 2.2em; /* Slightly smaller for mobile fit */
+    margin-bottom: 25px; /* Reduced margin */
+    letter-spacing: 0.1em;
+    font-weight: 900;
+}
+
+#game-board {
+    display: flex;
+    flex-direction: column;
+    gap: 7px; /* Slightly reduced gap */
+    margin: 0 auto;
+    width: fit-content;
+    /* No padding-bottom here, rely on game-container's padding */
+}
+
+.word-row {
+    display: flex;
+    gap: 7px; /* Slightly reduced gap */
+    justify-content: center;
+}
+
+.letter-box {
+    width: 55px; /* Slightly smaller box size for mobile fit */
+    height: 55px; /* Slightly smaller box size for mobile fit */
+    border: 2px solid #3a3a3c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8em; /* Adjusted font size for smaller boxes */
+    font-weight: bold;
+    text-transform: uppercase;
+    /* CHANGED: Faster animation duration */
+    transition: background-color 0.4s ease-in-out, border-color 0.4s ease-in-out, transform 0.1s ease-out;
+    box-sizing: border-box;
+    color: #e4e4e4;
+}
+
+/* State classes for letter boxes (unchanged) */
+.letter-box.filled {
+    border-color: #565758;
+}
+
+.letter-box.correct {
+    background-color: #538d4e;
+    border-color: #538d4e;
+    color: white;
+}
+
+.letter-box.present {
+    background-color: #b59f3b;
+    border-color: #b59f3b;
+    color: white;
+}
+
+.letter-box.absent {
+    background-color: #3a3a3c;
+    border-color: #3a3a3c;
+    color: white;
+}
+
+/* Animations (unchanged) */
+.letter-box.pop {
+    animation: pop 0.1s ease-out;
+}
+
+@keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.word-row.shake {
+    animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Flip animation - CHANGED: Faster duration */
+.letter-box.flip {
+    animation: flip 0.4s ease-in-out forwards; /* Reduced from 0.6s to 0.4s */
+}
+
+@keyframes flip {
+    0% { transform: rotateX(0deg); background-color: #3a3a3c; border-color: #3a3a3c;}
+    50% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0deg); }
+}
+
+
+/* Message Display (unchanged) */
+#message {
+    font-size: 1.0em; /* Slightly smaller */
+    font-weight: bold;
+    height: 20px;
+    margin-top: 10px;
+    color: #ff4d4d;
+}
+
+/* --- Virtual Keyboard Styling --- */
+#keyboard-container {
+    width: 100%;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px; /* Slightly reduced gap between rows */
+    margin-top: auto; /* Push keyboard to the bottom */
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 5px; /* Slightly reduced gap between keys */
+}
+
+.keyboard-key {
+    background-color: #818384;
+    color: #e4e4e4;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.8em; /* Slightly smaller font for compactness */
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    height: 52px; /* Slightly smaller key height */
+    max-width: 40px; /* Adjusted max width for standard letters */
+    user-select: none;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Specific key widths for Enter/Backspace */
+.keyboard-key.wide {
+    flex-basis: 55px; /* Adjusted wider key size */
+    flex-grow: 1.5;
+}
+
+.keyboard-key:active {
+    transform: translateY(1px);
+}
+
+/* Keyboard key states (unchanged) */
+.keyboard-key.correct {
+    background-color: #538d4e;
+    color: white;
+}
+
+.keyboard-key.present {
+    background-color: #b59f3b;
+    color: white;
+}
+
+.keyboard-key.absent {
+    background-color: #3a3a3c;
+    color: white;
+}
+
+
+/* Modal Styling (unchanged, but ensure it's still present) */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.modal {
+    background-color: #262627;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    text-align: center;
+    position: relative;
+    max-width: 80%;
+    transform: translateY(-50px);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.modal.fade-in {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.modal h2 {
+    color: #4CAF50;
+    margin-top: 0;
+    font-size: 2em;
+}
+
+.modal p {
+    font-size: 1.2em;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.modal a {
+    color: #81a8ed;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.modal a:hover {
+    text-decoration: underline;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 2em;
+    color: #aaa;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.close-button:hover {
+    color: #fff;
+}
